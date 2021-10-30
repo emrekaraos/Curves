@@ -1,0 +1,369 @@
+[1mdiff --git a/CMakeLists.txt b/CMakeLists.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9d8ac99[m
+[1m--- /dev/null[m
+[1m+++ b/CMakeLists.txt[m
+[36m@@ -0,0 +1,59 @@[m
+[32m+[m[32mcmake_minimum_required(VERSION 3.5)[m
+[32m+[m
+[32m+[m[32mproject(Curves VERSION 0.1 LANGUAGES CXX)[m
+[32m+[m
+[32m+[m[32mset(CMAKE_INCLUDE_CURRENT_DIR ON)[m
+[32m+[m
+[32m+[m[32mset(CMAKE_AUTOUIC ON)[m
+[32m+[m[32mset(CMAKE_AUTOMOC ON)[m
+[32m+[m[32mset(CMAKE_AUTORCC ON)[m
+[32m+[m
+[32m+[m[32mset(CMAKE_CXX_STANDARD 17)[m
+[32m+[m[32mset(CMAKE_CXX_STANDARD_REQUIRED ON)[m
+[32m+[m
+[32m+[m[32mfind_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)[m
+[32m+[m[32mfind_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)[m
+[32m+[m
+[32m+[m[32mset(PROJECT_SOURCES[m
+[32m+[m[32m        main.cpp[m
+[32m+[m[32m        mainwindow.cpp[m
+[32m+[m[32m        mainwindow.h[m
+[32m+[m[32m        mainwindow.ui[m
+[32m+[m[32m        renderarea.h[m
+[32m+[m[32m        renderarea.cpp[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mif(${QT_VERSION_MAJOR} GREATER_EQUAL 6)[m
+[32m+[m[32m    qt_add_executable(Curves[m
+[32m+[m[32m        MANUAL_FINALIZATION[m
+[32m+[m[32m        ${PROJECT_SOURCES}[m
+[32m+[m[32m    )[m
+[32m+[m[32m# Define target properties for Android with Qt 6 as:[m
+[32m+[m[32m#    set_property(TARGET Curves APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR[m
+[32m+[m[32m#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)[m
+[32m+[m[32m# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation[m
+[32m+[m[32melse()[m
+[32m+[m[32m    if(ANDROID)[m
+[32m+[m[32m        add_library(Curves SHARED[m
+[32m+[m[32m            ${PROJECT_SOURCES}[m
+[32m+[m[32m        )[m
+[32m+[m[32m# Define properties for Android with Qt 5 after find_package() calls as:[m
+[32m+[m[32m#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")[m
+[32m+[m[32m    else()[m
+[32m+[m[32m        add_executable(Curves[m
+[32m+[m[32m            ${PROJECT_SOURCES}[m
+[32m+[m[32m        )[m
+[32m+[m[32m    endif()[m
+[32m+[m[32mendif()[m
+[32m+[m
+[32m+[m[32mtarget_link_libraries(Curves PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)[m
+[32m+[m
+[32m+[m[32mset_target_properties(Curves PROPERTIES[m
+[32m+[m[32m    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com[m
+[32m+[m[32m    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}[m
+[32m+[m[32m    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mif(QT_VERSION_MAJOR EQUAL 6)[m
+[32m+[m[32m    qt_finalize_executable(Curves)[m
+[32m+[m[32mendif()[m
+[1mdiff --git a/main.cpp b/main.cpp[m
+[1mnew file mode 100644[m
+[1mindex 0000000..fd3e533[m
+[1m--- /dev/null[m
+[1m+++ b/main.cpp[m
+[36m@@ -0,0 +1,11 @@[m
+[32m+[m[32m#include "mainwindow.h"[m
+[32m+[m
+[32m+[m[32m#include <QApplication>[m
+[32m+[m
+[32m+[m[32mint main(int argc, char *argv[])[m
+[32m+[m[32m{[m
+[32m+[m[32m    QApplication a(argc, argv);[m
+[32m+[m[32m    MainWindow w;[m
+[32m+[m[32m    w.show();[m
+[32m+[m[32m    return a.exec();[m
+[32m+[m[32m}[m
+[1mdiff --git a/mainwindow.cpp b/mainwindow.cpp[m
+[1mnew file mode 100644[m
+[1mindex 0000000..da17bce[m
+[1m--- /dev/null[m
+[1m+++ b/mainwindow.cpp[m
+[36m@@ -0,0 +1,43 @@[m
+[32m+[m[32m#include "mainwindow.h"[m
+[32m+[m[32m#include "./ui_mainwindow.h"[m
+[32m+[m
+[32m+[m[32mMainWindow::MainWindow(QWidget *parent)[m
+[32m+[m[32m    : QMainWindow(parent)[m
+[32m+[m[32m    , ui(new Ui::MainWindow)[m
+[32m+[m[32m{[m
+[32m+[m[32m    ui->setupUi(this);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mMainWindow::~MainWindow()[m
+[32m+[m[32m{[m
+[32m+[m[32m    delete ui;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid MainWindow::on_btnAstroid_clicked()[m
+[32m+[m[32m{[m
+[32m+[m[32m    this->ui->renderarea->setSahpe(renderArea::Astroid);[m
+[32m+[m[32m    this->ui->renderarea->repaint();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid MainWindow::on_btnCycloid_clicked()[m
+[32m+[m[32m{[m
+[32m+[m[32m    this->ui->renderarea->setSahpe(renderArea::Cycloid);[m
+[32m+[m[32m    this->ui->renderarea->repaint();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid MainWindow::on_btnHuygens_clicked()[m
+[32m+[m[32m{[m
+[32m+[m[32m    this->ui->renderarea->setSahpe(renderArea::HuygensCycloid);[m
+[32m+[m[32m    this->ui->renderarea->repaint();[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m
+[32m+[m[32mvoid MainWindow::on_btnHypo_clicked()[m
+[32m+[m[32m{[m
+[32m+[m[32m    this->ui->renderarea->setSahpe(renderArea::HypoCycloid);[m
+[32m+[m[32m    this->ui->renderarea->repaint();[m
+[32m+[m[32m}[m
+[32m+[m
+[1mdiff --git a/mainwindow.h b/mainwindow.h[m
+[1mnew file mode 100644[m
+[1mindex 0000000..299290f[m
+[1m--- /dev/null[m
+[1m+++ b/mainwindow.h[m
+[36m@@ -0,0 +1,30 @@[m
+[32m+[m[32m#ifndef MAINWINDOW_H[m
+[32m+[m[32m#define MAINWINDOW_H[m
+[32m+[m
+[32m+[m[32m#include <QMainWindow>[m
+[32m+[m
+[32m+[m[32mQT_BEGIN_NAMESPACE[m
+[32m+[m[32mnamespace Ui { class MainWindow; }[m
+[32m+[m[32mQT_END_NAMESPACE[m
+[32m+[m
+[32m+[m[32mclass MainWindow : public QMainWindow[m
+[32m+[m[32m{[m
+[32m+[m[32m    Q_OBJECT[m
+[32m+[m
+[32m+[m[32mpublic:[m
+[32m+[m[32m    MainWindow(QWidget *parent = nullptr);[m
+[32m+[m[32m    ~MainWindow();[m
+[32m+[m
+[32m+[m[32mprivate slots:[m
+[32m+[m[32m    void on_btnAstroid_clicked();[m
+[32m+[m
+[32m+[m[32m    void on_btnCycloid_clicked();[m
+[32m+[m
+[32m+[m[32m    void on_btnHuygens_clicked();[m
+[32m+[m
+[32m+[m[32m    void on_btnHypo_clicked();[m
+[32m+[m
+[32m+[m[32mprivate:[m
+[32m+[m[32m    Ui::MainWindow *ui;[m
+[32m+[m[32m};[m
+[32m+[m[32m#endif // MAINWINDOW_H[m
+[1mdiff --git a/mainwindow.ui b/mainwindow.ui[m
+[1mnew file mode 100644[m
+[1mindex 0000000..58e717f[m
+[1m--- /dev/null[m
+[1m+++ b/mainwindow.ui[m
+[36m@@ -0,0 +1,89 @@[m
+[32m+[m[32m<?xml version="1.0" encoding="UTF-8"?>[m
+[32m+[m[32m<ui version="4.0">[m
+[32m+[m[32m <class>MainWindow</class>[m
+[32m+[m[32m <widget class="QMainWindow" name="MainWindow">[m
+[32m+[m[32m  <property name="geometry">[m
+[32m+[m[32m   <rect>[m
+[32m+[m[32m    <x>0</x>[m
+[32m+[m[32m    <y>0</y>[m
+[32m+[m[32m    <width>630</width>[m
+[32m+[m[32m    <height>544</height>[m
+[32m+[m[32m   </rect>[m
+[32m+[m[32m  </property>[m
+[32m+[m[32m  <property name="windowTitle">[m
+[32m+[m[32m   <string>MainWindow</string>[m
+[32m+[m[32m  </property>[m
+[32m+[m[32m  <widget class="QWidget" name="centralwidget">[m
+[32m+[m[32m   <widget class="QWidget" name="">[m
+[32m+[m[32m    <property name="geometry">[m
+[32m+[m[32m     <rect>[m
+[32m+[m[32m      <x>50</x>[m
+[32m+[m[32m      <y>100</y>[m
+[32m+[m[32m      <width>531</width>[m
+[32m+[m[32m      <height>321</height>[m
+[32m+[m[32m     </rect>[m
+[32m+[m[32m    </property>[m
+[32m+[m[32m    <layout class="QHBoxLayout" name="horizontalLayout">[m
+[32m+[m[32m     <item>[m
+[32m+[m[32m      <widget class="renderArea" name="renderarea" native="true"/>[m
+[32m+[m[32m     </item>[m
+[32m+[m[32m     <item>[m
+[32m+[m[32m      <layout class="QVBoxLayout" name="verticalLayout">[m
+[32m+[m[32m       <item>[m
+[32m+[m[32m        <widget class="QPushButton" name="btnAstroid">[m
+[32m+[m[32m         <property name="text">[m
+[32m+[m[32m          <string>Astroid</string>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m        </widget>[m
+[32m+[m[32m       </item>[m
+[32m+[m[32m       <item>[m
+[32m+[m[32m        <widget class="QPushButton" name="btnCycloid">[m
+[32m+[m[32m         <property name="text">[m
+[32m+[m[32m          <string>Cycloid</string>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m        </widget>[m
+[32m+[m[32m       </item>[m
+[32m+[m[32m       <item>[m
+[32m+[m[32m        <widget class="QPushButton" name="btnHuygens">[m
+[32m+[m[32m         <property name="text">[m
+[32m+[m[32m          <string>Huygens</string>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m        </widget>[m
+[32m+[m[32m       </item>[m
+[32m+[m[32m       <item>[m
+[32m+[m[32m        <widget class="QPushButton" name="btnHypo">[m
+[32m+[m[32m         <property name="text">[m
+[32m+[m[32m          <string>Hypo Cycloid</string>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m        </widget>[m
+[32m+[m[32m       </item>[m
+[32m+[m[32m       <item>[m
+[32m+[m[32m        <spacer name="verticalSpacer">[m
+[32m+[m[32m         <property name="orientation">[m
+[32m+[m[32m          <enum>Qt::Vertical</enum>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m         <property name="sizeHint" stdset="0">[m
+[32m+[m[32m          <size>[m
+[32m+[m[32m           <width>20</width>[m
+[32m+[m[32m           <height>40</height>[m
+[32m+[m[32m          </size>[m
+[32m+[m[32m         </property>[m
+[32m+[m[32m        </spacer>[m
+[32m+[m[32m       </item>[m
+[32m+[m[32m      </layout>[m
+[32m+[m[32m     </item>[m
+[32m+[m[32m    </layout>[m
+[32m+[m[32m   </widget>[m
+[32m+[m[32m  </widget>[m
+[32m+[m[32m </widget>[m
+[32m+[m[32m <customwidgets>[m
+[32m+[m[32m  <customwidget>[m
+[32m+[m[32m   <class>renderArea</class>[m
+[32m+[m[32m   <extends>QWidget</extends>[m
+[32m+[m[32m   <header>renderarea.h</header>[m
+[32m+[m[32m   <container>1</container>[m
+[32m+[m[32m  </customwidget>[m
+[32m+[m[32m </customwidgets>[m
+[32m+[m[32m <resources/>[m
+[32m+[m[32m <connections/>[m
+[32m+[m[32m</ui>[m
+[1mdiff --git a/renderarea.cpp b/renderarea.cpp[m
+[1mnew file mode 100644[m
+[1mindex 0000000..ec305c6[m
+[1m--- /dev/null[m
+[1m+++ b/renderarea.cpp[m
+[36m@@ -0,0 +1,52 @@[m
+[32m+[m[32m#include "renderarea.h"[m
+[32m+[m[32m#include <QPainter>[m
+[32m+[m[32m#include <QPaintEvent>[m
+[32m+[m
+[32m+[m[32mrenderArea::renderArea(QWidget *parent) : QWidget(parent),[m
+[32m+[m[32m    mBackgroundColor (0, 0, 255),[m
+[32m+[m[32m    mShapeColor(255, 255, 255),[m
+[32m+[m[32m    mShape(Astroid)[m
+[32m+[m[32m{[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mQSize renderArea::minimumSizeHint() const[m
+[32m+[m[32m{[m
+[32m+[m[32m    return QSize(100, 100);[m
+[32m+[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mQSize renderArea::sizeHint() const[m
+[32m+[m[32m{[m
+[32m+[m[32m    return QSize(400, 100);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid renderArea::paintEvent(QPaintEvent *event)[m
+[32m+[m[32m{[m
+[32m+[m[32m    QPainter painter(this);[m
+[32m+[m
+[32m+[m[32m    painter.setRenderHint(QPainter::Antialiasing, true);[m
+[32m+[m[32m    painter.drawRect(this->rect());[m
+[32m+[m
+[32m+[m[32m    switch (mShape) {[m
+[32m+[m[32m    case Astroid:[m
+[32m+[m[32m        mBackgroundColor = Qt::red;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m    case Cycloid:[m
+[32m+[m[32m        mBackgroundColor = Qt::green;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m    case HuygensCycloid:[m
+[32m+[m[32m        mBackgroundColor = Qt::blue;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m    case HypoCycloid:[m
+[32m+[m[32m        mBackgroundColor = Qt::yellow;[m
+[32m+[m[32m        break;[m
+[32m+[m[32m    default:[m
+[32m+[m[32m        break;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    painter.setBrush(mBackgroundColor);[m
+[32m+[m[32m    painter.setPen(mShapeColor);[m
+[32m+[m
+[32m+[m[32m    painter.drawRect(this->rect());[m
+[32m+[m[32m    painter.drawLine(this->rect().topLeft(), this->rect().bottomRight());[m
+[32m+[m[32m}[m
+[1mdiff --git a/renderarea.h b/renderarea.h[m
+[1mnew file mode 100644[m
+[1mindex 0000000..56baa9f[m
+[1m--- /dev/null[m
+[1m+++ b/renderarea.h[m
+[36m@@ -0,0 +1,43 @@[m
+[32m+[m[32m#ifndef RENDERAREA_H[m
+[32m+[m[32m#define RENDERAREA_H[m
+[32m+[m
+[32m+[m[32m#include <QWidget>[m
+[32m+[m[32m#include <QColor>[m
+[32m+[m
+[32m+[m[32mclass renderArea : public QWidget[m
+[32m+[m[32m{[m
+[32m+[m[32m    Q_OBJECT[m
+[32m+[m[32mpublic:[m
+[32m+[m[32m    explicit renderArea(QWidget *parent = nullptr);[m
+[32m+[m[32m    QSize minimumSizeHint() const Q_DECL_OVERRIDE;[m
+[32m+[m[32m    QSize sizeHint() const Q_DECL_OVERRIDE;[m
+[32m+[m
+[32m+[m[32m    enum ShapeType{[m
+[32m+[m[32m        Astroid,[m
+[32m+[m[32m        Cycloid,[m
+[32m+[m[32m        HuygensCycloid,[m
+[32m+[m[32m        HypoCycloid[m
+[32m+[m[32m    };[m
+[32m+[m
+[32m+[m[32m    void setBackgroundColor(QColor color) { mBackgroundColor = color; } // SETTER[m
+[32m+[m[32m    QColor backgroundColor() const { return mBackgroundColor; }  //GETTER[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    void setSahpe(ShapeType shape) { mShape = shape;} //SETTER[m
+[32m+[m[32m    ShapeType shape() const { return  mShape;} //GETTER[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32mprotected:[m
+[32m+[m[32m    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;[m
+[32m+[m
+[32m+[m[32msignals:[m
+[32m+[m
+[32m+[m[32mprivate:[m
+[32m+[m[32m    QColor mBackgroundColor;[m
+[32m+[m[32m    QColor mShapeColor;[m
+[32m+[m[32m    ShapeType mShape;[m
+[32m+[m
+[32m+[m[32m};[m
+[32m+[m
+[32m+[m[32m#endif // RENDERAREA_H[m
